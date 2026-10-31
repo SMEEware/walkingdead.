@@ -1,0 +1,3614 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Walking Dead management API",
+    "version": "1.0.0",
+    "description": "Management API of the Walking Dead multi-protocol honeypot. Everything the console does is available here, so you can build your own monitors, dashboards and automations. Authenticate with an owner session cookie or a scoped API key (Authorization: Bearer). Timestamps are Unix milliseconds in UTC. JSON mutations require Content-Type application/json; browser requests are origin-checked.",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "ownerSession": []
+    },
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/bootstrap": {
+      "get": {
+        "operationId": "getBootstrap",
+        "summary": "Reports whether the vault is initialized",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Bootstrap"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [],
+        "security": [],
+        "tags": [
+          "Access"
+        ],
+        "description": "Reports whether the vault is initialized. Public."
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "login",
+        "summary": "Starts an owner session and sets an HttpOnly cookie",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Owner"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          }
+        },
+        "security": [],
+        "tags": [
+          "Access"
+        ],
+        "description": "Starts an owner session and sets an HttpOnly cookie."
+      }
+    },
+    "/auth/session": {
+      "get": {
+        "operationId": "getPrincipal",
+        "summary": "Returns the authenticated owner or API key and its scopes",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Principal"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [],
+        "tags": [
+          "Access"
+        ],
+        "description": "Returns the authenticated owner or API key and its scopes."
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "summary": "Ends the current owner session",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [],
+        "security": [
+          {
+            "ownerSession": []
+          }
+        ],
+        "x-owner-only": true,
+        "tags": [
+          "Access"
+        ],
+        "description": "Ends the current owner session."
+      }
+    },
+    "/system": {
+      "get": {
+        "operationId": "getSystem",
+        "summary": "Current running state, interaction mode, decoy services with bind status and hit counts, auto-block and webhook configuration",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/System"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "system:read"
+        ],
+        "tags": [
+          "System"
+        ],
+        "description": "Current running state, interaction mode, decoy services with bind status and hit counts, auto-block and webhook configuration."
+      },
+      "put": {
+        "operationId": "configureSystem",
+        "summary": "Starts or stops the decoys, switches the mode (passive, interactive, tarpit), enables or re-binds individual decoys, toggles auto-block and configures webhook alerts",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/System"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "system:write"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SystemPatch"
+              }
+            }
+          }
+        },
+        "tags": [
+          "System"
+        ],
+        "description": "Starts or stops the decoys, switches the mode (passive, interactive, tarpit), enables or re-binds individual decoys, toggles auto-block and configures webhook alerts. Send only the fields you want to change."
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Authenticated health report",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Degraded runtime or unavailable encrypted store.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Health"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "system:read"
+        ],
+        "tags": [
+          "Operations"
+        ],
+        "description": "Authenticated health report. Degraded storage or listener failures are reported here."
+      }
+    },
+    "/metrics": {
+      "get": {
+        "operationId": "getMetrics",
+        "summary": "Prometheus/OpenMetrics exposition for scrapers using a system:read key",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/openmetrics-text": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Metrics gathering failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Unavailable store, concurrent scrape limit or scrape timeout.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "system:read"
+        ],
+        "tags": [
+          "Operations"
+        ],
+        "description": "Prometheus/OpenMetrics exposition for scrapers using a system:read key."
+      }
+    },
+    "/openapi": {
+      "get": {
+        "operationId": "getOpenAPI",
+        "summary": "Returns this OpenAPI document",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "system:read"
+        ],
+        "tags": [
+          "Operations"
+        ],
+        "description": "Returns this OpenAPI document."
+      }
+    },
+    "/keys": {
+      "get": {
+        "operationId": "listKeys",
+        "summary": "Lists API keys without secrets",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Key"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "keys:read"
+        ],
+        "tags": [
+          "Access"
+        ],
+        "description": "Lists API keys without secrets."
+      },
+      "post": {
+        "operationId": "createKey",
+        "summary": "Creates a scoped, expiring API key",
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedKey"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "keys:write"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateKey"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSession": []
+          }
+        ],
+        "x-owner-only": true,
+        "tags": [
+          "Access"
+        ],
+        "description": "Creates a scoped, expiring API key. The secret is returned once. Owner session only."
+      }
+    },
+    "/keys/{id}": {
+      "delete": {
+        "operationId": "revokeKey",
+        "summary": "Revokes an API key",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "keys:write"
+        ],
+        "security": [
+          {
+            "ownerSession": []
+          }
+        ],
+        "x-owner-only": true,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Access"
+        ],
+        "description": "Revokes an API key. Owner session only."
+      }
+    },
+    "/logs/recent": {
+      "get": {
+        "operationId": "listRecentEvents",
+        "summary": "Newest captured events, optionally filtered by service, type, source IP, tag, minimum severity and start time",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Event"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 400
+            },
+            "description": ""
+          },
+          {
+            "name": "service",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "http",
+                "ssh",
+                "telnet",
+                "ftp",
+                "redis",
+                "mysql"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minSeverity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "info",
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ]
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "tags": [
+          "Events"
+        ],
+        "description": "Newest captured events, optionally filtered by service, type, source IP, tag, minimum severity and start time."
+      }
+    },
+    "/logs": {
+      "delete": {
+        "operationId": "clearEvents",
+        "summary": "Deletes all retained events",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "data:write"
+        ],
+        "tags": [
+          "Events"
+        ],
+        "description": "Deletes all retained events."
+      }
+    },
+    "/days": {
+      "get": {
+        "operationId": "listDays",
+        "summary": "UTC days with event counts by severity",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Day"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "tags": [
+          "Events"
+        ],
+        "description": "UTC days with event counts by severity."
+      }
+    },
+    "/days/{day}/logs": {
+      "get": {
+        "operationId": "getDayEvents",
+        "summary": "All events of one UTC day",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Event"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "parameters": [
+          {
+            "name": "day",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "tags": [
+          "Events"
+        ],
+        "description": "All events of one UTC day."
+      }
+    },
+    "/summaries": {
+      "get": {
+        "operationId": "listSummaries",
+        "summary": "Saved daily briefings",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Summary"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "tags": [
+          "Briefings"
+        ],
+        "description": "Saved daily briefings."
+      },
+      "put": {
+        "operationId": "saveSummary",
+        "summary": "Stores a daily briefing",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "data:write"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Summary"
+              }
+            }
+          }
+        },
+        "tags": [
+          "Briefings"
+        ],
+        "description": "Stores a daily briefing."
+      }
+    },
+    "/days/{day}/summary": {
+      "put": {
+        "operationId": "saveDaySummary",
+        "summary": "Stores the briefing of one UTC day",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "data:write"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Summary"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "day",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "tags": [
+          "Briefings"
+        ],
+        "description": "Stores the briefing of one UTC day."
+      },
+      "delete": {
+        "operationId": "deleteDaySummary",
+        "summary": "Deletes the briefing of one UTC day",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "data:write"
+        ],
+        "parameters": [
+          {
+            "name": "day",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "tags": [
+          "Briefings"
+        ],
+        "description": "Deletes the briefing of one UTC day."
+      }
+    },
+    "/notifications": {
+      "get": {
+        "operationId": "listNotifications",
+        "summary": "Console notifications, newest first",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Notification"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300,
+              "default": 300
+            },
+            "description": ""
+          }
+        ],
+        "tags": [
+          "Notifications"
+        ],
+        "description": "Console notifications, newest first."
+      },
+      "put": {
+        "operationId": "saveNotifications",
+        "summary": "Upserts console notifications",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "data:write"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Notification"
+                },
+                "maxItems": 300
+              }
+            }
+          }
+        },
+        "tags": [
+          "Notifications"
+        ],
+        "description": "Upserts console notifications."
+      },
+      "delete": {
+        "operationId": "clearNotifications",
+        "summary": "Deletes all notifications",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "data:write"
+        ],
+        "tags": [
+          "Notifications"
+        ],
+        "description": "Deletes all notifications."
+      }
+    },
+    "/notifications/read-all": {
+      "post": {
+        "operationId": "markNotificationsRead",
+        "summary": "Marks every notification as read",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "data:write"
+        ],
+        "tags": [
+          "Notifications"
+        ],
+        "description": "Marks every notification as read."
+      }
+    },
+    "/stats": {
+      "get": {
+        "operationId": "getStatistics",
+        "summary": "Counts of retained events, days, briefings and notifications",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stats"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "tags": [
+          "Operations"
+        ],
+        "description": "Counts of retained events, days, briefings and notifications."
+      }
+    },
+    "/export": {
+      "get": {
+        "operationId": "exportEvidence",
+        "summary": "Full evidence export as JSON",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Export"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "tags": [
+          "Operations"
+        ],
+        "description": "Full evidence export as JSON."
+      }
+    },
+    "/all": {
+      "delete": {
+        "operationId": "clearEvidence",
+        "summary": "Deletes events, briefings and notifications",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "data:write"
+        ],
+        "tags": [
+          "Operations"
+        ],
+        "description": "Deletes events, briefings and notifications."
+      }
+    },
+    "/sessions": {
+      "get": {
+        "operationId": "listSessions",
+        "summary": "Connection sessions with search, day filter and pagination",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Session"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "description": ""
+          },
+          {
+            "name": "day",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": ""
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 10000
+            },
+            "description": ""
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "description": ""
+          }
+        ],
+        "tags": [
+          "Events"
+        ],
+        "description": "Connection sessions with search, day filter and pagination."
+      }
+    },
+    "/sessions/{id}": {
+      "get": {
+        "operationId": "getSession",
+        "summary": "Timeline of one connection session",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Events"
+        ],
+        "description": "Timeline of one connection session."
+      }
+    },
+    "/audit": {
+      "get": {
+        "operationId": "listAudit",
+        "summary": "Management audit trail",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Audit"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "system:read"
+        ],
+        "tags": [
+          "Operations"
+        ],
+        "description": "Management audit trail."
+      }
+    },
+    "/stream": {
+      "get": {
+        "operationId": "streamInvalidations",
+        "summary": "Server-sent change notifications (event: event:update) used by the console to refetch",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "tags": [
+          "Overview"
+        ],
+        "description": "Server-sent change notifications (event: event:update) used by the console to refetch. Prefer /events/stream for monitors."
+      }
+    },
+    "/ai/settings": {
+      "get": {
+        "operationId": "getAISettings",
+        "summary": "DeepSeek configuration without the key",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AISettings"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "ai:run"
+        ],
+        "tags": [
+          "AI"
+        ],
+        "description": "DeepSeek configuration without the key."
+      },
+      "put": {
+        "operationId": "configureAI",
+        "summary": "Changes model and privacy settings",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AISettings"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "ai:run"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AISettingsPatch"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSession": []
+          }
+        ],
+        "x-owner-only": true,
+        "tags": [
+          "AI"
+        ],
+        "description": "Changes model and privacy settings."
+      }
+    },
+    "/ai": {
+      "post": {
+        "operationId": "analyzeEvidence",
+        "summary": "Explains one event (task explain) or summarizes a UTC day (task digest) with evidence-linked findings",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "ai:run",
+          "events:read"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AIRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "AI"
+        ],
+        "description": "Explains one event (task explain) or summarizes a UTC day (task digest) with evidence-linked findings."
+      }
+    },
+    "/attackers": {
+      "get": {
+        "operationId": "listAttackers",
+        "summary": "Every source ranked by threat score (0–100) with services, techniques, credential and command counts, shell access and block status",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Attacker"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "tags": [
+          "Threat intelligence"
+        ],
+        "description": "Every source ranked by threat score (0–100) with services, techniques, credential and command counts, shell access and block status."
+      }
+    },
+    "/attackers/{ip}": {
+      "get": {
+        "operationId": "getAttacker",
+        "summary": "One attacker profile with its full event timeline, including commands typed in the emulated shell",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttackerDetail"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Threat intelligence"
+        ],
+        "description": "One attacker profile with its full event timeline, including commands typed in the emulated shell."
+      }
+    },
+    "/intel": {
+      "get": {
+        "operationId": "getIntel",
+        "summary": "Aggregates top usernames, passwords and pairs, MITRE ATT&CK techniques, attack classes, IOCs, top commands, paths, user agents and a weekday × hour heatmap",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Intel"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "tags": [
+          "Threat intelligence"
+        ],
+        "description": "Aggregates top usernames, passwords and pairs, MITRE ATT&CK techniques, attack classes, IOCs, top commands, paths, user agents and a weekday × hour heatmap."
+      }
+    },
+    "/blocklist": {
+      "get": {
+        "operationId": "listBlocklist",
+        "summary": "Blocked sources with reason and origin (manual or auto)",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BlockEntry"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "tags": [
+          "Blocklist"
+        ],
+        "description": "Blocked sources with reason and origin (manual or auto)."
+      },
+      "post": {
+        "operationId": "addBlock",
+        "summary": "Adds an IPv4 or IPv6 address to the blocklist",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "data:write"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockRequest"
+              }
+            }
+          }
+        },
+        "tags": [
+          "Blocklist"
+        ],
+        "description": "Adds an IPv4 or IPv6 address to the blocklist."
+      }
+    },
+    "/blocklist/{ip}": {
+      "delete": {
+        "operationId": "removeBlock",
+        "summary": "Removes an address from the blocklist",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "data:write"
+        ],
+        "parameters": [
+          {
+            "name": "ip",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Blocklist"
+        ],
+        "description": "Removes an address from the blocklist."
+      }
+    },
+    "/blocklist/export": {
+      "get": {
+        "operationId": "exportBlocklist",
+        "summary": "Firewall-ready export as txt, iptables, nftables, pf or csv",
+        "responses": {
+          "200": {
+            "description": "Firewall-ready blocklist",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ],
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "txt",
+                "iptables",
+                "nftables",
+                "pf",
+                "csv"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "Blocklist"
+        ],
+        "description": "Firewall-ready export as txt, iptables, nftables, pf or csv."
+      }
+    },
+    "/webhook/test": {
+      "post": {
+        "operationId": "testWebhook",
+        "summary": "Sends a test alert to the configured webhook",
+        "responses": {
+          "204": {
+            "description": "Change persisted; no content."
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "system:write"
+        ],
+        "tags": [
+          "System"
+        ],
+        "description": "Sends a test alert to the configured webhook."
+      }
+    },
+    "/overview": {
+      "get": {
+        "operationId": "getOverview",
+        "tags": [
+          "Overview"
+        ],
+        "summary": "Monitor snapshot",
+        "description": "Everything a status monitor needs in one call: running state, decoys, a recency-weighted threat level (0–100), the last hour and last 24 hours by severity and service, attacker, blocked and compromised counts, the top attacker and the latest event.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overview"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ]
+      }
+    },
+    "/events/stream": {
+      "get": {
+        "operationId": "streamEvents",
+        "tags": [
+          "Overview"
+        ],
+        "summary": "Live attack stream",
+        "description": "Server-sent events with the full payload of every new event as it is captured (event: attack). Accepts the same filters as /logs/recent except since. Sends event: ready on connect and event: ping every 20 seconds.",
+        "parameters": [
+          {
+            "name": "service",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "http",
+                "ssh",
+                "telnet",
+                "ftp",
+                "redis",
+                "mysql"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minSeverity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "info",
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "text/event-stream of attack events",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "API error; errors never contain credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scopes": [
+          "events:read"
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ownerSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "wd_session"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "wdk_..."
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      },
+      "Bootstrap": {
+        "type": "object",
+        "properties": {
+          "initialized": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "initialized"
+        ],
+        "additionalProperties": false
+      },
+      "Login": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 1,
+            "maxLength": 1024,
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "Owner": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username"
+        ],
+        "additionalProperties": false
+      },
+      "Principal": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "system:read",
+                "system:write",
+                "events:read",
+                "keys:read",
+                "keys:write",
+                "data:write",
+                "ai:run"
+              ]
+            }
+          },
+          "owner": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "username",
+          "scopes",
+          "owner"
+        ],
+        "additionalProperties": false
+      },
+      "Service": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "hits": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "address": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "port",
+          "enabled",
+          "hits",
+          "address",
+          "active"
+        ],
+        "additionalProperties": false
+      },
+      "System": {
+        "type": "object",
+        "properties": {
+          "running": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "passive",
+              "interactive",
+              "tarpit"
+            ]
+          },
+          "autoBlock": {
+            "type": "boolean"
+          },
+          "httpAddress": {
+            "type": "string"
+          },
+          "httpEnabled": {
+            "type": "boolean"
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Service"
+            }
+          },
+          "capabilities": {
+            "type": "object",
+            "properties": {
+              "autoBlock": {
+                "type": "boolean"
+              },
+              "services": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "autoBlock",
+              "services"
+            ],
+            "additionalProperties": false
+          },
+          "error": {
+            "type": "string"
+          },
+          "webhook": {
+            "$ref": "#/components/schemas/Webhook"
+          }
+        },
+        "required": [
+          "running",
+          "mode",
+          "autoBlock",
+          "httpAddress",
+          "httpEnabled",
+          "services",
+          "capabilities",
+          "webhook"
+        ],
+        "additionalProperties": false
+      },
+      "SystemPatch": {
+        "type": "object",
+        "properties": {
+          "running": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "passive",
+              "interactive",
+              "tarpit"
+            ]
+          },
+          "autoBlock": {
+            "type": "boolean"
+          },
+          "httpAddress": {
+            "type": "string"
+          },
+          "httpEnabled": {
+            "type": "boolean"
+          },
+          "decoys": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "address": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "enabled"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "webhook": {
+            "$ref": "#/components/schemas/Webhook"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "degraded"
+            ]
+          },
+          "storage": {
+            "type": "string",
+            "enum": [
+              "available"
+            ]
+          },
+          "uptimeSeconds": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "system": {
+            "$ref": "#/components/schemas/System"
+          },
+          "retainedEvents": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "retainedSummaries": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "events": {
+                "type": "integer"
+              },
+              "eventBytes": {
+                "type": "integer"
+              },
+              "summaries": {
+                "type": "integer"
+              },
+              "summaryBytes": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "events",
+              "eventBytes",
+              "summaries",
+              "summaryBytes"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "status",
+          "storage",
+          "uptimeSeconds",
+          "system",
+          "retainedEvents",
+          "retainedSummaries",
+          "limits"
+        ],
+        "additionalProperties": false
+      },
+      "Key": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "prefix": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "system:read",
+                "system:write",
+                "events:read",
+                "keys:read",
+                "keys:write",
+                "data:write",
+                "ai:run"
+              ]
+            }
+          },
+          "createdAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "expiresAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastUsedAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "revokedAt": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "prefix",
+          "scopes",
+          "createdAt",
+          "expiresAt",
+          "lastUsedAt",
+          "revokedAt"
+        ],
+        "additionalProperties": false
+      },
+      "CreatedKey": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "prefix": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "system:read",
+                "system:write",
+                "events:read",
+                "keys:read",
+                "keys:write",
+                "data:write",
+                "ai:run"
+              ]
+            }
+          },
+          "createdAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "expiresAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastUsedAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "revokedAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "key": {
+            "type": "string",
+            "description": "Shown once. Store privately; never place it in URLs.",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "prefix",
+          "scopes",
+          "createdAt",
+          "expiresAt",
+          "lastUsedAt",
+          "revokedAt",
+          "key"
+        ],
+        "additionalProperties": false
+      },
+      "CreateKey": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "system:read",
+                "system:write",
+                "events:read",
+                "keys:read",
+                "keys:write",
+                "data:write",
+                "ai:run"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 7
+          },
+          "expiresInDays": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 365,
+            "default": 30,
+            "description": "Zero also selects the default."
+          }
+        },
+        "required": [
+          "name",
+          "scopes"
+        ],
+        "additionalProperties": false
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ts": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "service": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "info",
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "srcIp": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "sensorId": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "command": {
+            "type": "string"
+          },
+          "userAgent": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tactics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "iocs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "ts",
+          "service",
+          "type",
+          "severity",
+          "srcIp",
+          "country",
+          "message",
+          "sessionId",
+          "sensorId"
+        ],
+        "additionalProperties": false
+      },
+      "Day": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "bySeverity": {
+            "type": "object",
+            "properties": {
+              "info": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "low": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "medium": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "high": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "critical": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "info",
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "day",
+          "total",
+          "bySeverity"
+        ],
+        "additionalProperties": false
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "srcIp": {
+            "type": "string"
+          },
+          "service": {
+            "type": "string"
+          },
+          "sensorId": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "endedAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastSeenAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "eventCount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "info",
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "srcIp",
+          "service",
+          "sensorId",
+          "startedAt",
+          "endedAt",
+          "lastSeenAt",
+          "eventCount",
+          "severity"
+        ],
+        "additionalProperties": false
+      },
+      "SessionDetail": {
+        "type": "object",
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/Session"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            },
+            "maxItems": 10000
+          },
+          "retainedOnly": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "session",
+          "events",
+          "retainedOnly"
+        ],
+        "additionalProperties": false
+      },
+      "Audit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ts": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ts",
+          "actor",
+          "action",
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "Summary": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local",
+              "ai"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 12000
+          },
+          "logCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "inputTokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "outputTokens": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "day",
+          "source",
+          "text",
+          "logCount",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "ts": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "alert",
+              "system",
+              "ai"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "info",
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "group": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "ref": {
+            "type": "object",
+            "maxProperties": 3,
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        },
+        "required": [
+          "id",
+          "ts",
+          "kind",
+          "severity",
+          "title",
+          "body",
+          "read"
+        ],
+        "additionalProperties": false
+      },
+      "Stats": {
+        "type": "object",
+        "properties": {
+          "logs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "summaries": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "notifications": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "logs",
+          "days",
+          "summaries",
+          "notifications"
+        ],
+        "additionalProperties": false
+      },
+      "Export": {
+        "type": "object",
+        "properties": {
+          "exportedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "logs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Day"
+            }
+          },
+          "summaries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Summary"
+            }
+          },
+          "notifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Notification"
+            }
+          }
+        },
+        "required": [
+          "exportedAt",
+          "logs",
+          "days",
+          "summaries",
+          "notifications"
+        ],
+        "additionalProperties": false
+      },
+      "AISettings": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "deepseek"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "configured": {
+            "type": "boolean"
+          },
+          "model": {
+            "type": "string",
+            "enum": [
+              "deepseek-flash",
+              "deepseek-v4-pro"
+            ]
+          },
+          "redactIps": {
+            "type": "boolean"
+          },
+          "includePayloads": {
+            "type": "boolean"
+          },
+          "maxEvents": {
+            "type": "integer"
+          },
+          "maxOutputTokens": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "provider",
+          "enabled",
+          "configured",
+          "model",
+          "redactIps",
+          "includePayloads",
+          "maxEvents",
+          "maxOutputTokens"
+        ],
+        "additionalProperties": false
+      },
+      "AISettingsPatch": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "model": {
+            "type": "string",
+            "enum": [
+              "deepseek-flash",
+              "deepseek-v4-pro"
+            ]
+          },
+          "redactIps": {
+            "type": "boolean"
+          },
+          "includePayloads": {
+            "type": "boolean"
+          },
+          "providerKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "format": "password",
+            "writeOnly": true
+          },
+          "clearKey": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "AIRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "task": {
+                "type": "string",
+                "enum": [
+                  "explain"
+                ]
+              },
+              "eventId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "task",
+              "eventId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "task": {
+                "type": "string",
+                "enum": [
+                  "digest"
+                ]
+              },
+              "day": {
+                "type": "string",
+                "format": "date"
+              }
+            },
+            "required": [
+              "task",
+              "day"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Finding": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "assessment": {
+            "type": "string"
+          },
+          "evidenceIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 12
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        },
+        "required": [
+          "title",
+          "assessment",
+          "evidenceIds",
+          "confidence"
+        ],
+        "additionalProperties": false
+      },
+      "AIResult": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "deepseek"
+            ]
+          },
+          "model": {
+            "type": "string"
+          },
+          "inputTokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "outputTokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sampledEvents": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalEvents": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "text",
+          "provider",
+          "model",
+          "inputTokens",
+          "outputTokens",
+          "findings",
+          "limitations",
+          "sampledEvents",
+          "totalEvents"
+        ],
+        "additionalProperties": false
+      },
+      "Webhook": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "generic",
+              "slack",
+              "discord"
+            ]
+          },
+          "minSeverity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          }
+        },
+        "required": [
+          "enabled",
+          "format",
+          "minSeverity"
+        ],
+        "additionalProperties": false
+      },
+      "Counted": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "value",
+          "count"
+        ],
+        "additionalProperties": false
+      },
+      "Attacker": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string"
+          },
+          "firstSeen": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "lastSeen": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "events": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sessions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "info",
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tactics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "credentials": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "commands": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "compromised": {
+            "type": "boolean"
+          },
+          "blocked": {
+            "type": "boolean"
+          },
+          "bySeverity": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "required": [
+          "ip",
+          "firstSeen",
+          "lastSeen",
+          "events",
+          "sessions",
+          "services",
+          "severity",
+          "score",
+          "tags",
+          "tactics",
+          "credentials",
+          "commands",
+          "compromised",
+          "blocked",
+          "bySeverity"
+        ],
+        "additionalProperties": false
+      },
+      "AttackerDetail": {
+        "type": "object",
+        "properties": {
+          "attacker": {
+            "$ref": "#/components/schemas/Attacker"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          }
+        },
+        "required": [
+          "attacker",
+          "events"
+        ],
+        "additionalProperties": false
+      },
+      "Intel": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "attackers": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "compromised": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "blocked": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Counted"
+            }
+          },
+          "usernames": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Counted"
+            }
+          },
+          "passwords": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Counted"
+            }
+          },
+          "pairs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "user",
+                "password",
+                "count"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Counted"
+            }
+          },
+          "tactics": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "count"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Counted"
+            }
+          },
+          "commands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Counted"
+            }
+          },
+          "userAgents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Counted"
+            }
+          },
+          "iocs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Counted"
+            }
+          },
+          "heatmap": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "required": [
+          "events",
+          "attackers",
+          "compromised",
+          "blocked",
+          "services",
+          "usernames",
+          "passwords",
+          "pairs",
+          "tags",
+          "tactics",
+          "paths",
+          "commands",
+          "userAgents",
+          "iocs",
+          "heatmap"
+        ],
+        "additionalProperties": false
+      },
+      "BlockEntry": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "auto"
+            ]
+          },
+          "createdAt": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "ip",
+          "reason",
+          "source",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "BlockRequest": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ip"
+        ],
+        "additionalProperties": false
+      },
+      "Window": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sources": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "bySeverity": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "byService": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "required": [
+          "events",
+          "sources",
+          "bySeverity",
+          "byService"
+        ],
+        "additionalProperties": false
+      },
+      "Overview": {
+        "type": "object",
+        "properties": {
+          "generatedAt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "running": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "autoBlock": {
+            "type": "boolean"
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Service"
+            }
+          },
+          "threatLevel": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "lastHour": {
+            "$ref": "#/components/schemas/Window"
+          },
+          "last24h": {
+            "$ref": "#/components/schemas/Window"
+          },
+          "retained": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "attackers": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "blocked": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "compromised": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "topAttacker": {
+            "$ref": "#/components/schemas/Attacker"
+          },
+          "lastEvent": {
+            "$ref": "#/components/schemas/Event"
+          }
+        },
+        "required": [
+          "generatedAt",
+          "running",
+          "mode",
+          "autoBlock",
+          "services",
+          "threatLevel",
+          "lastHour",
+          "last24h",
+          "retained",
+          "attackers",
+          "blocked",
+          "compromised"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Overview",
+      "description": "Monitor-ready snapshots and live streams."
+    },
+    {
+      "name": "Threat intelligence",
+      "description": "Attacker profiles, credentials, MITRE ATT&CK techniques and indicators of compromise."
+    },
+    {
+      "name": "Blocklist",
+      "description": "Blocked sources and firewall exports."
+    },
+    {
+      "name": "Events",
+      "description": "Raw captured events, sessions and daily partitions."
+    },
+    {
+      "name": "System",
+      "description": "Decoy listeners, interaction mode, auto-block and webhooks."
+    },
+    {
+      "name": "AI",
+      "description": "Optional DeepSeek analysis and briefings."
+    },
+    {
+      "name": "Briefings",
+      "description": "Saved daily briefings."
+    },
+    {
+      "name": "Notifications",
+      "description": "Console notification inbox."
+    },
+    {
+      "name": "Access",
+      "description": "Authentication and API keys."
+    },
+    {
+      "name": "Operations",
+      "description": "Health, metrics, audit, export and the API contract."
+    }
+  ]
+}

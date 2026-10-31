@@ -1,0 +1,37 @@
+[Unit]
+Description=Walking Dead honeypot management
+Documentation=https://github.com/SMEEware/walkingdead.
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=walkingdead
+Group=walkingdead
+StateDirectory=walkingdead
+StateDirectoryMode=0700
+WorkingDirectory=/var/lib/walkingdead
+LoadCredential=vault-password:/etc/walkingdead/vault-password
+ExecStart=/opt/walkingdead/wdd serve --data-dir /var/lib/walkingdead/data --password-file %d/vault-password --listen 127.0.0.1:8080
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

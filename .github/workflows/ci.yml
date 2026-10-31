@@ -1,0 +1,58 @@
+name: Verify
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Tests, race checks, vet and lint
+        run: ./scripts/check.sh
+      - name: Live dependency security checks
+        run: ./scripts/security-check.sh
+      - name: Build native release and isolated development binary
+        run: ./scripts/test-build.sh
+      - name: Exercise real binaries and verified restore
+        run: python3 scripts/smoke-test.py
+      - name: Cross-compile Linux arm64
+        if: runner.os == 'Linux'
+        run: ./build.sh --target linux/arm64
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - name: Fetch source outside the workspace
+        working-directory: ${{ runner.temp }}
+        shell: pwsh
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          git init --quiet wd
+          git -C wd fetch --quiet --depth 1 "https://x-access-token:$env:TOKEN@github.com/${{ github.repository }}.git" "${{ github.sha }}"
+          git -C wd checkout --quiet FETCH_HEAD
+      - name: Windows vault privacy, build and vet
+        working-directory: ${{ runner.temp }}/wd/backend
+        shell: pwsh
+        env:
+          GOTOOLCHAIN: go1.27.3
+        run: |
+          go version
+          go test ./internal/winacl ./internal/detect ./internal/collector
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go vet ./...
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go build ./...

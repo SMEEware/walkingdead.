@@ -1,0 +1,11 @@
+.DS_Store
+**/.cache/
+**/.runtime/
+/dist/
+/coverage/
+/data/
+**/.local/data/
+.env
+.env.*
+!.env.example
+*.log

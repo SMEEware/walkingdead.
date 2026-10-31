@@ -1,0 +1,16 @@
+{
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
+  "high": true,
+  "package-manager": "npm",
+  "report-type": "important",
+  "retry-count": 2,
+  "allowlist": [
+    {
+      "GHSA-vfj7-8cjw-p6xm|eslint-config-next>@next/eslint-plugin-next>fast-glob>micromatch>braces": {
+        "active": true,
+        "expiry": "2026-11-17T00:00:00Z",
+        "notes": "Unpatched development-only Next ESLint glob parser; never processes captured traffic. Reassess upstream fix before expiry. Production audit has no exceptions."
+      }
+    }
+  ]
+}
